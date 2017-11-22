@@ -22,9 +22,9 @@ RUN \
 VOLUME ["/data"]
 
 # Mount elasticsearch.yml config
-# COPY elasticsearch.yml /elasticsearch/config/
-# COPY readonlyrest-1.16.11-pre9_es5.6.0.zip /tmp/
-# RUN /elasticsearch/bin/elasticsearch-plugin install file:/tmp/readonlyrest-1.16.11-pre9_es5.6.0.zip
+COPY elasticsearch.yml /elasticsearch/config/
+COPY readonlyrest-1.16.14_es6.0.0.zip /tmp/
+RUN /elasticsearch/bin/elasticsearch-plugin install file:/tmp/readonlyrest-1.16.14_es6.0.0.zip
 
 # Change log level INFO->DEBUG
 
