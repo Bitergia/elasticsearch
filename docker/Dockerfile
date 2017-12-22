@@ -23,6 +23,7 @@ VOLUME ["/data"]
 
 # Mount elasticsearch.yml config
 COPY elasticsearch.yml /elasticsearch/config/
+COPY readonlyrest.yml /elasticsearch/config/
 COPY readonlyrest-1.16.14_es6.1.0.zip /tmp/
 RUN /elasticsearch/bin/elasticsearch-plugin install file:/tmp/readonlyrest-1.16.14_es6.1.0.zip
 
