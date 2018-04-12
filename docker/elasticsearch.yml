@@ -1,5 +1,4 @@
 cluster.name: bitergia_elasticsearch
 
 #transport.tcp.port : 9310
-http.bind_host: _eth0:ipv4_
-network.host: _eth0:ipv4_
+network.host: 0.0.0.0
