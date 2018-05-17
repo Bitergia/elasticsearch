@@ -26,6 +26,8 @@ COPY elasticsearch.yml /elasticsearch/config/
 # Install Search-Guard plugin
 RUN /elasticsearch/bin/elasticsearch-plugin install -b com.floragunn:search-guard-6:6.1.0-21.0 && \
     cd /elasticsearch/plugins/search-guard-6/tools/ && \
+    rm install_demo_configuration.sh && \
+    wget https://raw.githubusercontent.com/floragunncom/search-guard/master/tools/install_demo_configuration.sh && \
     chmod 755 install_demo_configuration.sh && \
     # This is for the elastic container 6.1.0 which grep does not support --quiet
     sed -i 's/\-\-quiet/\-q/' /elasticsearch/plugins/search-guard-6/tools/install_demo_configuration.sh && \
