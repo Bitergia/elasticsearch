@@ -12,7 +12,7 @@ RUN apk update &&  apk add ca-certificates wget && apk add ca-certificates curl 
 RUN \
  mkdir /tmp/es && \
  cd /tmp/es && \
- wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.1.0.tar.gz && \
+ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.8.6.tar.gz && \
  tar xvzf elasticsearch-*.tar.gz && \
  rm -f elasticsearch-*.tar.gz && \
  mv /tmp/es/elasticsearch-* /elasticsearch && \
@@ -24,16 +24,21 @@ VOLUME ["/data"]
 # Mount elasticsearch.yml config
 COPY elasticsearch.yml /elasticsearch/config/
 # Install Search-Guard plugin
-RUN /elasticsearch/bin/elasticsearch-plugin install -b com.floragunn:search-guard-6:6.1.0-21.0 && \
+RUN wget https://releases.floragunn.com/search-guard-6/6.8.6-25.5/search-guard-6-6.8.6-25.5.zip -O /tmp/search-guard-6-6.8.6-25.5.zip
+
+RUN /elasticsearch/bin/elasticsearch-plugin install -b file:///tmp/search-guard-6-6.8.6-25.5.zip && \
     cd /elasticsearch/plugins/search-guard-6/tools/ && \
     rm install_demo_configuration.sh && \
-    wget https://raw.githubusercontent.com/floragunncom/search-guard/master/tools/install_demo_configuration.sh && \
+    wget https://git.floragunn.com/search-guard/search-guard/raw/master/tools/install_demo_configuration.sh && \
     chmod 755 install_demo_configuration.sh && \
-    # This is for the elastic container 6.1.0 which grep does not support --quiet
+    # This is for the elastic container 6.8.6 which grep does not support --quiet
     sed -i 's/\-\-quiet/\-q/' /elasticsearch/plugins/search-guard-6/tools/install_demo_configuration.sh && \
     ./install_demo_configuration.sh -y && \
     echo "searchguard.enterprise_modules_enabled: false" >> \
     /elasticsearch/config/elasticsearch.yml
+
+RUN rm /tmp/search-guard-6-6.8.6-25.5.zip
+
 # Add default roles
 ADD sg_roles_mapping.yml /usr/share/elasticsearch/plugins/search-guard-6/sgconfig/sg_roles_mapping.yml
 
