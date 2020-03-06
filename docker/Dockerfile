@@ -8,7 +8,7 @@
 FROM anapsix/alpine-java
 
 # Install ElasticSearch.
-RUN apk update &&  apk add ca-certificates wget && apk add ca-certificates curl && update-ca-certificates
+RUN apk update &&  apk add --no-cache ca-certificates wget su-exec && apk add ca-certificates curl && update-ca-certificates
 RUN \
  mkdir /tmp/es && \
  cd /tmp/es && \
@@ -17,9 +17,6 @@ RUN \
  rm -f elasticsearch-*.tar.gz && \
  mv /tmp/es/elasticsearch-* /elasticsearch && \
  rm -rf /tmp/es
-
-# Define mountable directories.
-VOLUME ["/data"]
 
 # Mount elasticsearch.yml config
 COPY elasticsearch.yml /elasticsearch/config/
@@ -48,13 +45,14 @@ ADD sg_roles_mapping.yml /usr/share/elasticsearch/plugins/search-guard-6/sgconfi
 #    sed -e "s/INFO/INFO/" /elasticsearch/config/logging.yml > $TMP_FILE && \
 #    mv $TMP_FILE /elasticsearch/config/logging.yml
 
-# Define working directory.
-WORKDIR /data
+# Define mountable directories.
+VOLUME ["/elasticsearch/data"]
 
+# Define working directory.
+WORKDIR /elasticsearch/data
 
 RUN adduser -D -u 1000 esuser
 RUN chown -R esuser /elasticsearch
-USER esuser
 
 # Remote debugger
 ENV ES_JAVA_OPTS "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000"
@@ -70,4 +68,4 @@ EXPOSE 9200
 EXPOSE 8000
 #EXPOSE 9300
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["elasticsearch"]
+CMD ["su-exec esuser elasticsearch"]

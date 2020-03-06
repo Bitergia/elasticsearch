@@ -1,12 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
+ES_USER=esuser
 ES_PATH="/elasticsearch"
 http="https"
 
 set -m
 
+chown -R $ES_USER /elasticsearch/data
+
 # Add elasticsearch as command if needed
 if [ "${1:0:1}" = '-' ]; then
-	set -- $ES_PATH/bin/elasticsearch "$@"
+	set -- su-exec $ES_USER $ES_PATH/bin/elasticsearch "$@"
 fi
 
 $@ &
