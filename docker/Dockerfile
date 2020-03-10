@@ -12,7 +12,7 @@ RUN apk update &&  apk add ca-certificates wget && apk add ca-certificates curl 
 RUN \
  mkdir /tmp/es && \
  cd /tmp/es && \
- wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.8.6.tar.gz && \
+ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-6.8.6.tar.gz && \
  tar xvzf elasticsearch-*.tar.gz && \
  rm -f elasticsearch-*.tar.gz && \
  mv /tmp/es/elasticsearch-* /elasticsearch && \
