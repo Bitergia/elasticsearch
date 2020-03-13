@@ -7,37 +7,33 @@
 # Pull base image.
 FROM anapsix/alpine-java
 
-# Install ElasticSearch.
-RUN apk update &&  apk add ca-certificates wget && apk add ca-certificates curl && update-ca-certificates
-RUN \
- mkdir /tmp/es && \
- cd /tmp/es && \
- wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-6.8.6.tar.gz && \
- tar xvzf elasticsearch-*.tar.gz && \
- rm -f elasticsearch-*.tar.gz && \
- mv /tmp/es/elasticsearch-* /elasticsearch && \
- rm -rf /tmp/es
+ENV ES_RELEASE 6.8.6
 
-# Define mountable directories.
-VOLUME ["/data"]
+# Install ElasticSearch.
+RUN apk update && apk add --no-cache \
+    ca-certificates curl && \
+    update-ca-certificates && \
+    mkdir /tmp/es && cd /tmp/es && \
+    wget -q "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-${ES_RELEASE}.tar.gz" && \
+    tar xzf elasticsearch-*.tar.gz && rm -f elasticsearch-*.tar.gz && \
+    mv /tmp/es/elasticsearch-* /elasticsearch && rm -rf /tmp/es
 
 # Mount elasticsearch.yml config
 COPY elasticsearch.yml /elasticsearch/config/
-# Install Search-Guard plugin
-RUN wget https://releases.floragunn.com/search-guard-6/6.8.6-25.5/search-guard-6-6.8.6-25.5.zip -O /tmp/search-guard-6-6.8.6-25.5.zip
 
-RUN /elasticsearch/bin/elasticsearch-plugin install -b file:///tmp/search-guard-6-6.8.6-25.5.zip && \
+# Install Search-Guard plugin
+RUN wget -q -P /tmp "https://releases.floragunn.com/search-guard-6/${ES_RELEASE}-25.5/search-guard-6-${ES_RELEASE}-25.5.zip" && \
+    /elasticsearch/bin/elasticsearch-plugin install -b "file:///tmp/search-guard-6-${ES_RELEASE}-25.5.zip" && \
     cd /elasticsearch/plugins/search-guard-6/tools/ && \
     rm install_demo_configuration.sh && \
-    wget https://git.floragunn.com/search-guard/search-guard/raw/master/tools/install_demo_configuration.sh && \
+    wget -q https://git.floragunn.com/search-guard/search-guard/raw/master/tools/install_demo_configuration.sh && \
     chmod 755 install_demo_configuration.sh && \
     # This is for the elastic container 6.8.6 which grep does not support --quiet
     sed -i 's/\-\-quiet/\-q/' /elasticsearch/plugins/search-guard-6/tools/install_demo_configuration.sh && \
     ./install_demo_configuration.sh -y && \
     echo "searchguard.enterprise_modules_enabled: false" >> \
-    /elasticsearch/config/elasticsearch.yml
-
-RUN rm /tmp/search-guard-6-6.8.6-25.5.zip
+    /elasticsearch/config/elasticsearch.yml && \
+    rm /tmp/search-guard-6-${ES_RELEASE}-25.5.zip
 
 # Add default roles
 ADD sg_roles_mapping.yml /usr/share/elasticsearch/plugins/search-guard-6/sgconfig/sg_roles_mapping.yml
@@ -49,11 +45,14 @@ ADD sg_roles_mapping.yml /usr/share/elasticsearch/plugins/search-guard-6/sgconfi
 #    mv $TMP_FILE /elasticsearch/config/logging.yml
 
 # Define working directory.
-WORKDIR /data
+WORKDIR /elasticsearch/data
 
+# Define mountable directories.
+VOLUME ["/elasticsearch/data"]
 
-RUN adduser -D -u 1000 esuser
-RUN chown -R esuser /elasticsearch
+RUN adduser -D -u 1000 esuser && \
+    chown -R esuser /elasticsearch
+
 USER esuser
 
 # Remote debugger
