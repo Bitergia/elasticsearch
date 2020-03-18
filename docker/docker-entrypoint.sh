@@ -20,6 +20,11 @@ while [[ RET -ne 0 ]]; do
     sleep 5
 done
 
+# Enable Anonymous user
+if [ "$ANONYMOUS_USER" != "" ]; then
+    sed -i "s/anonymous_auth_enabled: false/anonymous_auth_enabled: true/g" $ES_PATH/plugins/search-guard-6/sgconfig/sg_config.yml
+fi
+
 $ES_PATH/plugins/search-guard-6/tools/sgadmin.sh -cd $ES_PATH/plugins/search-guard-6/sgconfig -h 0.0.0.0 -icl -nhnv -cacert $ES_PATH/config/root-ca.pem -cert $ES_PATH/config/kirk.pem -key $ES_PATH/config/kirk-key.pem
 
 fg
