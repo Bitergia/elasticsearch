@@ -47,11 +47,11 @@ ADD sg_roles_mapping.yml /usr/share/elasticsearch/plugins/search-guard-6/sgconfi
 # Define working directory.
 WORKDIR /elasticsearch/data
 
-# Define mountable directories.
-VOLUME ["/elasticsearch/data"]
-
 RUN adduser -D -u 1000 esuser && \
     chown -R esuser /elasticsearch
+
+# Define mountable directories.
+VOLUME ["/elasticsearch/data"]
 
 USER esuser
 
