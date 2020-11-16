@@ -22,7 +22,7 @@ RUN apk update && apk add --no-cache \
 COPY elasticsearch.yml /elasticsearch/config/
 
 # Install Search-Guard plugin
-RUN wget -q -P /tmp "https://releases.floragunn.com/search-guard-6/${ES_RELEASE}-25.5/search-guard-6-${ES_RELEASE}-25.5.zip" && \
+RUN wget -q -P /tmp "https://maven.search-guard.com/search-guard-release/com/floragunn/search-guard-6/${ES_RELEASE}-25.5/search-guard-6-${ES_RELEASE}-25.5.zip" && \
     /elasticsearch/bin/elasticsearch-plugin install -b "file:///tmp/search-guard-6-${ES_RELEASE}-25.5.zip" && \
     cd /elasticsearch/plugins/search-guard-6/tools/ && \
     rm install_demo_configuration.sh && \
