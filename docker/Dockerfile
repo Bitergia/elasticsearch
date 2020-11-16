@@ -21,6 +21,10 @@ RUN apk update && apk add --no-cache \
 # Mount elasticsearch.yml config
 COPY elasticsearch.yml /elasticsearch/config/
 
+# Install S3 plugin
+RUN wget -q -P /tmp "https://artifacts.elastic.co/downloads/elasticsearch-plugins/repository-s3/repository-s3-${ES_RELEASE}.zip" && \ 
+    /elasticsearch/bin/elasticsearch-plugin install -b "file:///tmp/repository-s3-${ES_RELEASE}.zip"
+
 # Install Search-Guard plugin
 RUN wget -q -P /tmp "https://maven.search-guard.com/search-guard-release/com/floragunn/search-guard-6/${ES_RELEASE}-25.5/search-guard-6-${ES_RELEASE}-25.5.zip" && \
     /elasticsearch/bin/elasticsearch-plugin install -b "file:///tmp/search-guard-6-${ES_RELEASE}-25.5.zip" && \
